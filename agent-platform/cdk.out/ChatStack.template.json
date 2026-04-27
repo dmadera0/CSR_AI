@@ -1,0 +1,257 @@
+{
+ "Resources": {
+  "ChatFunctionServiceRole544D50A9": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatFunction/ServiceRole/Resource"
+   }
+  },
+  "ChatFunctionServiceRoleDefaultPolicy8AB4563A": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream"
+       ],
+       "Effect": "Allow",
+       "Resource": "arn:aws:bedrock:*::foundation-model/anthropic.claude-sonnet-4-5-20250929-v1:0"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ChatFunctionServiceRoleDefaultPolicy8AB4563A",
+    "Roles": [
+     {
+      "Ref": "ChatFunctionServiceRole544D50A9"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "ChatFunction3D7C447E": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-078232195170-us-east-1",
+     "S3Key": "6bd8ffba159a58c89cae393e206c45841609101ce860b546db11c49f270d3449.zip"
+    },
+    "Handler": "index.handler",
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "ChatFunctionServiceRole544D50A9",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "ChatFunctionServiceRoleDefaultPolicy8AB4563A",
+    "ChatFunctionServiceRole544D50A9"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatFunction/Resource",
+    "aws:asset:path": "asset.6bd8ffba159a58c89cae393e206c45841609101ce860b546db11c49f270d3449",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "ChatApiD29796E1": {
+   "Type": "AWS::ApiGatewayV2::Api",
+   "Properties": {
+    "CorsConfiguration": {
+     "AllowHeaders": [
+      "Content-Type"
+     ],
+     "AllowMethods": [
+      "POST"
+     ],
+     "AllowOrigins": [
+      "*"
+     ]
+    },
+    "Name": "ChatApi",
+    "ProtocolType": "HTTP"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatApi/Resource"
+   }
+  },
+  "ChatApiDefaultStage608215E8": {
+   "Type": "AWS::ApiGatewayV2::Stage",
+   "Properties": {
+    "ApiId": {
+     "Ref": "ChatApiD29796E1"
+    },
+    "AutoDeploy": true,
+    "StageName": "$default"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatApi/DefaultStage/Resource"
+   }
+  },
+  "ChatApiPOSTchatChatIntegrationB28072E1": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "ChatApiD29796E1"
+    },
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::GetAtt": [
+      "ChatFunction3D7C447E",
+      "Arn"
+     ]
+    },
+    "PayloadFormatVersion": "2.0"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatApi/POST--chat/ChatIntegration/Resource"
+   }
+  },
+  "ChatApiPOSTchatChatIntegrationPermission43592A25": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "ChatFunction3D7C447E",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:078232195170:",
+       {
+        "Ref": "ChatApiD29796E1"
+       },
+       "/*/*/chat"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatApi/POST--chat/ChatIntegration-Permission"
+   }
+  },
+  "ChatApiPOSTchat1FCC5F11": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "ChatApiD29796E1"
+    },
+    "AuthorizationType": "NONE",
+    "RouteKey": "POST /chat",
+    "Target": {
+     "Fn::Join": [
+      "",
+      [
+       "integrations/",
+       {
+        "Ref": "ChatApiPOSTchatChatIntegrationB28072E1"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatApi/POST--chat/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/11QS27CMBA9S/fOtA3tgiVUQrACpQdAg+NGQxI7yoxByPLdsR1Vqrp6n/k9TQ315zu8veCdK9321UAXCN+CulfJOocBx0uLEHbeaiFn1deP/ctPZh6JOamoCEcIjRtMLhQ8uYH0o/QVFhWvzshshGGTIWnYet0b2SIbhRN1KOaOj1sNYS8ybSbK4xmyTMm6sn4h2Wqcl4UdrJhuxt9o/2Tpi1GVu3mcbJf9o5fJS1TWtQau/HqrP2CdPnJlomr2Vmg00Cz4BAkVJqkuAQAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "ApiUrl": {
+   "Description": "HTTP API endpoint — POST /chat",
+   "Value": {
+    "Fn::GetAtt": [
+     "ChatApiD29796E1",
+     "ApiEndpoint"
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

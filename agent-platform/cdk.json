@@ -1,9 +1,6 @@
 {
-  // The command CDK runs to synthesize the CloudFormation template.
-  // ts-node compiles the TypeScript entry point on the fly — no separate build step needed.
   "app": "npx ts-node --prefer-ts-exts bin/agent-platform.ts",
 
-  // Files watched by `cdk watch` for hot-redeployment during development.
   "watch": {
     "include": ["**"],
     "exclude": [
@@ -17,8 +14,6 @@
     ]
   },
 
-  // Feature flags — opt in to current CDK best-practice defaults
-  // so behavior is explicit and not subject to future breaking changes.
   "context": {
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,

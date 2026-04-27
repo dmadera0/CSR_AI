@@ -1,0 +1,190 @@
+{
+  "/ChatStack": [
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/bin/agent-platform.ts:12:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ApiUrl": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ApiUrl"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/lib/chat-stack.ts:59:5)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/bin/agent-platform.ts:12:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/BootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "BootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib, node internals, @cspotcode/source-map-support...",
+        "(no user code in 9007199254740991 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/ChatStack/CheckBootstrapVersion": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CheckBootstrapVersion"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib, node internals, @cspotcode/source-map-support...",
+        "(no user code in 9007199254740991 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/ChatStack/ChatFunction/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatFunction3D7C447E"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/lib/chat-stack.ts:16:20)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/bin/agent-platform.ts:12:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ChatApi/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatApiD29796E1"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new HttpApi2 in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/lib/chat-stack.ts:40:17)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/bin/agent-platform.ts:12:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...aws-cdk-lib, node internals, @cspotcode/source-map-support...",
+        "(no user code in 9007199254740991 frames, use --stack-trace-limit to capture more)"
+      ]
+    }
+  ],
+  "/ChatStack/ChatFunction/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatFunctionServiceRole544D50A9"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/lib/chat-stack.ts:16:20)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/bin/agent-platform.ts:12:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ChatApi/DefaultStage/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatApiDefaultStage608215E8"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new HttpApi2 in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/lib/chat-stack.ts:40:17)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/bin/agent-platform.ts:12:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ChatApi/POST--chat/ChatIntegration-Permission": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatApiPOSTchatChatIntegrationPermission43592A25"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/node_modules/aws-cdk-lib/aws-apigatewayv2/lib/http/api.js:1:96 in aws-cdk-lib...",
+        "Array.map (:)",
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/lib/chat-stack.ts:51:9)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/bin/agent-platform.ts:12:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ChatApi/POST--chat/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatApiPOSTchat1FCC5F11"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/node_modules/aws-cdk-lib/aws-apigatewayv2/lib/http/api.js:1:96 in aws-cdk-lib...",
+        "Array.map (:)",
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/lib/chat-stack.ts:51:9)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/bin/agent-platform.ts:12:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ChatFunction/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatFunctionServiceRoleDefaultPolicy8AB4563A"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.addToRolePolicy in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/lib/chat-stack.ts:28:12)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/bin/agent-platform.ts:12:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ChatApi/POST--chat/ChatIntegration/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatApiPOSTchatChatIntegrationB28072E1"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/node_modules/aws-cdk-lib/aws-apigatewayv2/lib/http/api.js:1:96 in aws-cdk-lib...",
+        "Array.map (:)",
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/lib/chat-stack.ts:51:9)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/agent-platform/bin/agent-platform.ts:12:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ]
+}

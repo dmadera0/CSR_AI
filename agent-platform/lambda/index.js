@@ -5,7 +5,7 @@ const { BedrockRuntimeClient, InvokeModelCommand } = require('@aws-sdk/client-be
 // Client is created once outside the handler so it is reused across
 // warm invocations (connection pooling, credential caching).
 const client = new BedrockRuntimeClient({});
-const MODEL_ID = 'anthropic.claude-sonnet-4-5-20250929-v1:0';
+const MODEL_ID = 'us.anthropic.claude-sonnet-4-5-20250929-v1:0';
 
 exports.handler = async (event) => {
 
