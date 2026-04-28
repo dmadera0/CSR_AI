@@ -1,0 +1,36 @@
+{
+  "version": "53.0.0",
+  "files": {
+    "ab639d79311b86f7071fed40a8b27ec9f1d8af4db944a400d3eb30267cd58c44": {
+      "displayName": "ChatFunction/Code",
+      "source": {
+        "path": "asset.ab639d79311b86f7071fed40a8b27ec9f1d8af4db944a400d3eb30267cd58c44",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "078232195170-us-east-1-cd75ce3d": {
+          "bucketName": "cdk-hnb659fds-assets-078232195170-us-east-1",
+          "objectKey": "ab639d79311b86f7071fed40a8b27ec9f1d8af4db944a400d3eb30267cd58c44.zip",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::078232195170:role/cdk-hnb659fds-file-publishing-role-078232195170-us-east-1"
+        }
+      }
+    },
+    "25b41bc57536d53228972f0c74064136beb816b737c3db98f9dd1a542c1e532e": {
+      "displayName": "ChatStack Template",
+      "source": {
+        "path": "ChatStack.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "078232195170-us-east-1-8ce1b9de": {
+          "bucketName": "cdk-hnb659fds-assets-078232195170-us-east-1",
+          "objectKey": "25b41bc57536d53228972f0c74064136beb816b737c3db98f9dd1a542c1e532e.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::078232195170:role/cdk-hnb659fds-file-publishing-role-078232195170-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}
