@@ -26,13 +26,14 @@ export class ChatStack extends cdk.Stack {
     // Claude Sonnet 4.5 foundation model. Scoped to the exact model ARN
     // rather than bedrock:* to follow least-privilege.
     chatFn.addToRolePolicy(
-      new iam.PolicyStatement({
-        actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
-        resources: [
-          `arn:aws:bedrock:*::foundation-model/anthropic.claude-sonnet-4-5-20250929-v1:0`,
-        ],
-      })
-    );
+  new iam.PolicyStatement({
+    actions: ['bedrock:InvokeModel', 'bedrock:InvokeModelWithResponseStream'],
+    resources: [
+      `arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-4-5-20250929-v1:0`,
+      `arn:aws:bedrock:us-east-1:078232195170:inference-profile/us.anthropic.claude-sonnet-4-5-20250929-v1:0`,
+    ],
+  })
+);
 
     // --- HTTP API Gateway ---
     // Creates a lightweight HTTP API (not REST API) — lower cost and latency.
