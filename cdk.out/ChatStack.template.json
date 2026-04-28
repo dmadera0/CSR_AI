@@ -69,7 +69,7 @@
    "Properties": {
     "Code": {
      "S3Bucket": "cdk-hnb659fds-assets-078232195170-us-east-1",
-     "S3Key": "ab639d79311b86f7071fed40a8b27ec9f1d8af4db944a400d3eb30267cd58c44.zip"
+     "S3Key": "03f330b53d9901e4ad35e15a7b9423493193d3009295a904ea676527a77cf92c.zip"
     },
     "Handler": "index.handler",
     "MemorySize": 256,
@@ -88,7 +88,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "ChatStack/ChatFunction/Resource",
-    "aws:asset:path": "asset.ab639d79311b86f7071fed40a8b27ec9f1d8af4db944a400d3eb30267cd58c44",
+    "aws:asset:path": "asset.03f330b53d9901e4ad35e15a7b9423493193d3009295a904ea676527a77cf92c",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
