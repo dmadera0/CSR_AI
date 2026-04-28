@@ -69,7 +69,7 @@
    "Properties": {
     "Code": {
      "S3Bucket": "cdk-hnb659fds-assets-078232195170-us-east-1",
-     "S3Key": "03f330b53d9901e4ad35e15a7b9423493193d3009295a904ea676527a77cf92c.zip"
+     "S3Key": "4c8b0d11ffa2cd05067f7b094210681c4980057f84d3c477b2bc8845634dcdea.zip"
     },
     "Handler": "index.handler",
     "MemorySize": 256,
@@ -88,7 +88,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "ChatStack/ChatFunction/Resource",
-    "aws:asset:path": "asset.03f330b53d9901e4ad35e15a7b9423493193d3009295a904ea676527a77cf92c",
+    "aws:asset:path": "asset.4c8b0d11ffa2cd05067f7b094210681c4980057f84d3c477b2bc8845634dcdea",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
@@ -214,7 +214,7 @@
  },
  "Outputs": {
   "ApiUrl": {
-   "Description": "HTTP API endpoint — POST /chat",
+   "Description": "HTTP API endpoint — append /chat to use it",
    "Value": {
     "Fn::GetAtt": [
      "ChatApiD29796E1",
