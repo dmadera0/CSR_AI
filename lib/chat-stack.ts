@@ -9,6 +9,11 @@
  * CloudFormation template — a JSON document that describes
  * every AWS resource and how they connect.
  *
+ * PHASE 3 ADDITIONS (on top of Phase 2):
+ *  10. ConversationHistory   — DynamoDB table storing the last N messages
+ *                              per chat session so Claude can remember
+ *                              what was said earlier in the conversation
+ *
  * PHASE 2 ADDITIONS (on top of Phase 1):
  *   4. An S3 bucket          — stores the Demosite knowledge docs
  *   5. A BucketDeployment    — uploads docs to S3 on every deploy
@@ -261,12 +266,88 @@ export class ChatStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    // ── 8. DynamoDB Table: Conversation History ───────────────────
+    //
+    // WHY CONVERSATION MEMORY?
+    //   Without memory, every message Demo receives is stateless — it
+    //   has no idea what was said two turns ago. "What about my return?"
+    //   makes no sense without the prior context. This table stores
+    //   the recent messages for each session so Claude always has
+    //   the full conversation when it generates the next reply.
+    //
+    // DATA MODEL:
+    //   Each row is one message (user or assistant).
+    //   Multiple rows share the same sessionId — one per conversation.
+    //   We query by sessionId, ordered by timestamp, to reconstruct
+    //   the conversation in chronological order.
+    //
+    // partitionKey: sessionId (String)
+    //   Groups all messages in one conversation together. Every query
+    //   targets a specific session, so sessionId is the partition key.
+    //
+    // sortKey: timestamp (Number)
+    //   Within a session, messages are ordered by the millisecond
+    //   timestamp at which they were written. DynamoDB always keeps
+    //   items within a partition sorted by the sort key, making
+    //   "give me messages for session X, newest first" very fast.
+    //   Using Number (not String) ensures correct numeric ordering —
+    //   String ordering would put "1000" before "200" alphabetically.
+    //
+    // timeToLiveAttribute: 'ttl'
+    //   The Lambda writes a Unix timestamp (seconds) 30 days in the
+    //   future into the 'ttl' field. DynamoDB silently deletes the
+    //   row once that timestamp passes. Old conversations clean up
+    //   automatically — no cron job or manual purge needed.
+    //
+    // billingMode: PAY_PER_REQUEST
+    //   No minimum capacity charge. Cost scales with actual read/write
+    //   volume. Perfect for a project that has bursts of usage
+    //   separated by quiet periods.
+    const conversationTable = new dynamodb.Table(this, 'ConversationHistory', {
+      tableName: 'ConversationHistory',
+      partitionKey: { name: 'sessionId', type: dynamodb.AttributeType.STRING },
+      sortKey:      { name: 'timestamp', type: dynamodb.AttributeType.NUMBER },
+      timeToLiveAttribute: 'ttl',
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    // ── GSI: sessionId-timestamp-index ────────────────────────────
+    //
+    // A Global Secondary Index (GSI) is an additional index that lets
+    // you query the table using a different key schema than the main
+    // table's primary key.
+    //
+    // DESIGN NOTE: This GSI has the same partition key (sessionId)
+    // and sort key (timestamp) as the main table. In practice that
+    // means the main table index already supports all the queries we
+    // need (query by sessionId, ordered by timestamp). The GSI is
+    // included here per the project specification; it may be useful
+    // later if the primary key schema changes (e.g., you add a userId
+    // partition key and move sessionId to a GSI).
+    //
+    // projectionType: ALL
+    //   The GSI stores a complete copy of every attribute (not just
+    //   keys). This means queries against the GSI can return all
+    //   fields without a second "GetItem" round-trip.
+    //
+    // DEPLOY-TIME NOTE: DynamoDB may raise a validation error if it
+    // rejects a GSI whose key schema exactly mirrors the base table.
+    // If `cdk deploy` fails with a GSI validation error, comment out
+    // this block — the main table index supports all required queries.
+    conversationTable.addGlobalSecondaryIndex({
+      indexName: 'sessionId-timestamp-index',
+      partitionKey: { name: 'sessionId', type: dynamodb.AttributeType.STRING },
+      sortKey:      { name: 'timestamp', type: dynamodb.AttributeType.NUMBER },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     // ==============================================================
-    // PHASE 1 — LAMBDA FUNCTION (updated with Phase 2 additions)
+    // PHASE 1 — LAMBDA FUNCTION (updated with Phase 3 additions)
     // ==============================================================
     //
-    // The Lambda function is defined AFTER the Knowledge Base and
-    // DynamoDB table so we can pass their IDs as environment variables.
+    // The Lambda function is defined AFTER ALL DynamoDB tables so
+    // every table name is resolved before it is injected as an env var.
     // Environment variables are the standard way to pass configuration
     // from CDK infrastructure code to Lambda runtime code.
 
@@ -291,6 +372,11 @@ export class ChatStack extends cdk.Stack {
 
         // The DynamoDB table name for writing unknown question records.
         UNKNOWN_QUESTIONS_TABLE: unknownQuestionsTable.tableName,
+
+        // The DynamoDB table name for reading/writing conversation history.
+        // Phase 3 uses this to load prior messages before calling Claude
+        // and to save the new exchange after each response.
+        CONVERSATION_TABLE_NAME: conversationTable.tableName,
       },
     });
 
@@ -329,15 +415,43 @@ export class ChatStack extends cdk.Stack {
     // calls the BedrockAgentRuntime Retrieve API.
     knowledgeBase.grantRetrieve(chatFn);
 
-    // ── DynamoDB PutItem ──────────────────────────────────────────
+    // ── DynamoDB: UnknownQuestions (write-only) ───────────────────
     //
-    // grantWriteData() adds a PolicyStatement granting:
-    //   Actions: dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:DeleteItem, etc.
-    //   Resource: <table ARN>
-    //
-    // The Lambda only calls PutItem, but grantWriteData is the CDK
-    // convention for "write access" and is still scoped to this table.
+    // grantWriteData() grants PutItem, UpdateItem, DeleteItem, and
+    // BatchWriteItem on the table. The Lambda only calls PutItem but
+    // this is CDK's standard "write" grant and stays scoped to this
+    // table's ARN.
     unknownQuestionsTable.grantWriteData(chatFn);
+
+    // ── DynamoDB: ConversationHistory (read + write) ──────────────
+    //
+    // The conversation table needs TWO kinds of access:
+    //
+    //   PutItem   — write each new user message and assistant reply
+    //   Query     — read the session's recent message history before
+    //               each Claude call so it has conversation context
+    //   BatchGetItem — available for future bulk-read operations
+    //
+    // We grant both via specific actions rather than the broad
+    // grantReadWriteData() to keep permissions as narrow as possible.
+    //
+    // The second resource entry ("<tableArn>/index/*") is required for
+    // Query calls that target the GSI (sessionId-timestamp-index)
+    // instead of the main table index. Without it, GSI queries return
+    // AccessDeniedException even though the table ARN is allowed.
+    chatFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: [
+          'dynamodb:PutItem',      // write new messages
+          'dynamodb:Query',        // read session history
+          'dynamodb:BatchGetItem', // future bulk reads
+        ],
+        resources: [
+          conversationTable.tableArn,              // main table
+          `${conversationTable.tableArn}/index/*`, // all GSIs
+        ],
+      })
+    );
 
     // ==============================================================
     // PHASE 1 — HTTP API GATEWAY (unchanged)
@@ -377,6 +491,13 @@ export class ChatStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'KnowledgeBaseId', {
       value: knowledgeBase.knowledgeBaseId,
       description: 'Bedrock Knowledge Base ID — use to trigger a sync after deploy',
+    });
+
+    // The ConversationHistory table name — useful for querying via
+    // the AWS Console or CLI to verify messages are being stored.
+    new cdk.CfnOutput(this, 'ConversationTableName', {
+      value: conversationTable.tableName,
+      description: 'DynamoDB table storing conversation history per session',
     });
   }
 }

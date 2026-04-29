@@ -802,6 +802,60 @@
     "aws:cdk:path": "ChatStack/UnknownQuestionsTable/Resource"
    }
   },
+  "ConversationHistoryD9612A4F": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "sessionId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "timestamp",
+      "AttributeType": "N"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "sessionId-timestamp-index",
+      "KeySchema": [
+       {
+        "AttributeName": "sessionId",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "timestamp",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "sessionId",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "timestamp",
+      "KeyType": "RANGE"
+     }
+    ],
+    "TableName": "ConversationHistory",
+    "TimeToLiveSpecification": {
+     "AttributeName": "ttl",
+     "Enabled": true
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ConversationHistory/Resource"
+   }
+  },
   "ChatFunctionServiceRole544D50A9": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -877,6 +931,36 @@
          "Arn"
         ]
        }
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:PutItem",
+        "dynamodb:Query"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "ConversationHistoryD9612A4F",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "ConversationHistoryD9612A4F",
+             "Arn"
+            ]
+           },
+           "/index/*"
+          ]
+         ]
+        }
+       ]
       }
      ],
      "Version": "2012-10-17"
@@ -897,7 +981,7 @@
    "Properties": {
     "Code": {
      "S3Bucket": "cdk-hnb659fds-assets-078232195170-us-east-1",
-     "S3Key": "e80fa722104bb4072d608100a49f79d419bfa7aa4a9bea68ac15ac115533d628.zip"
+     "S3Key": "49deb960b64e90330fb0247dbd9ab25a38c7133170cf1f7fd138320b9e80dde4.zip"
     },
     "Environment": {
      "Variables": {
@@ -909,6 +993,9 @@
       },
       "UNKNOWN_QUESTIONS_TABLE": {
        "Ref": "UnknownQuestionsTableC759410D"
+      },
+      "CONVERSATION_TABLE_NAME": {
+       "Ref": "ConversationHistoryD9612A4F"
       }
      }
     },
@@ -929,7 +1016,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "ChatStack/ChatFunction/Resource",
-    "aws:asset:path": "asset.e80fa722104bb4072d608100a49f79d419bfa7aa4a9bea68ac15ac115533d628",
+    "aws:asset:path": "asset.49deb960b64e90330fb0247dbd9ab25a38c7133170cf1f7fd138320b9e80dde4",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
@@ -1070,6 +1157,12 @@
      "DemositeKnowledgeBaseMyCfnKnowledgeBase7EDF6842",
      "KnowledgeBaseId"
     ]
+   }
+  },
+  "ConversationTableName": {
+   "Description": "DynamoDB table storing conversation history per session",
+   "Value": {
+    "Ref": "ConversationHistoryD9612A4F"
    }
   }
  },
