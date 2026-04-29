@@ -208,7 +208,7 @@
      "cdk-hnb659fds-assets-078232195170-us-east-1"
     ],
     "SourceObjectKeys": [
-     "b6c46cd42aa94b31dbbc71d61b4d8148978444988981ec861de0e7e2f55cc212.zip"
+     "2e99d3d0c408cf73c3c6725d86a9121f6abd4121bdc6ed414b65cbf496d87642.zip"
     ],
     "DestinationBucketName": {
      "Ref": "DemositeKnowledgeBucket61FEEE19"
