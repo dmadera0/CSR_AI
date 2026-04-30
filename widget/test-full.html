@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DemoChat Widget — Full Config Test</title>
+  <style>
+    /* Heavier host-page CSS to confirm widget isolation */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Trebuchet MS', sans-serif;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 60px 80px;
+    }
+    h1  { font-size: 2.4rem; font-weight: 800; margin-bottom: 12px; }
+    p   { max-width: 580px; line-height: 1.6; opacity: 0.85; }
+    ul  { max-width: 580px; margin-top: 16px; padding-left: 22px; }
+    li  { margin-bottom: 6px; opacity: 0.8; }
+    .tag {
+      display: inline-block;
+      background: #7c3aed;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    code {
+      background: rgba(255,255,255,0.1);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <span class="tag">Test — full config override</span>
+  <h1>Demosite Enterprise</h1>
+  <p>
+    This page tests the widget with a fully customised configuration:
+    purple brand colour, agent named "Aria", left-side position,
+    and a custom greeting message.
+  </p>
+  <ul>
+    <li>Bubble should appear in the <strong>bottom-LEFT corner</strong></li>
+    <li>Chat header colour: <code>#7c3aed</code> (purple)</li>
+    <li>Agent name: <strong>Aria</strong></li>
+    <li>Greeting: custom message on first open</li>
+  </ul>
+  <p style="margin-top:20px;">
+    Also confirms the widget renders correctly on a dark background
+    and against heavy host-page CSS (no style bleed in either direction).
+  </p>
+
+  <!-- Step 1: Load the built widget bundle (same file, different config) -->
+  <script src="dist/demo-widget.js"></script>
+
+  <!-- Step 2: Initialize with all optional settings overridden -->
+  <script>
+    DemoChat.init({
+      tenantId:        'demosite-enterprise',
+      apiUrl:          'https://krli1mrzr9.execute-api.us-east-1.amazonaws.com',
+      primaryColor:    '#7c3aed',
+      agentName:       'Aria',
+      greetingMessage: "Hello! I'm Aria from Demosite Enterprise. 🌟 How can I help you today?",
+      position:        'left'
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!--
+  ════════════════════════════════════════════════════════════════
+  DemoChat Widget — Customer Embed Code Template
+  ════════════════════════════════════════════════════════════════
+
+  Copy the two <script> tags below and paste them just before the
+  closing </body> tag of any HTML page you want to add the chat
+  widget to. No other files, stylesheets, or dependencies needed.
+
+  REQUIRED CONFIG:
+    apiUrl   — the API Gateway base URL from your cdk deploy output
+               (ChatStack.ApiUrl, without a trailing slash)
+    tenantId — any string that identifies your site/application
+
+  OPTIONAL CONFIG (with defaults shown):
+    primaryColor    '#2563eb'   — hex colour for header & accents
+    agentName       'Demo'      — name shown in the chat header
+    greetingMessage '...'       — first message the agent sends on open
+    position        'right'     — 'right' or 'left' (corner placement)
+  ════════════════════════════════════════════════════════════════
+-->
+
+<!-- ── Minimal embed (required fields only) ──────────────────── -->
+<script src="https://your-cdn.example.com/demo-widget.js"></script>
+<script>
+  DemoChat.init({
+    tenantId: 'your-site-id',
+    apiUrl:   'https://your-api-id.execute-api.us-east-1.amazonaws.com'
+  });
+</script>
+
+
+<!-- ── Full embed (all options) ──────────────────────────────── -->
+<!--
+<script src="https://your-cdn.example.com/demo-widget.js"></script>
+<script>
+  DemoChat.init({
+    // ── Required ─────────────────────────────────────────
+    tenantId: 'your-site-id',
+    apiUrl:   'https://your-api-id.execute-api.us-east-1.amazonaws.com',
+
+    // ── Branding ─────────────────────────────────────────
+    primaryColor:     '#2563eb',   // hex colour for header, bubble, buttons
+    agentName:        'Demo',      // name shown in chat header
+
+    // ── Behaviour ────────────────────────────────────────
+    greetingMessage:  'Hi! How can I help you today? 👋',
+                                   // set to '' to skip the greeting
+    position:         'right',     // 'right' or 'left'
+  });
+</script>
+-->
+
+
+<!--
+  ════════════════════════════════════════════════════════════════
+  HOSTING THE WIDGET FILE
+
+  Option A — Self-host (recommended for production):
+    1. Run `npm run build` in the widget/ folder
+    2. Upload dist/demo-widget.js to your own CDN or S3 bucket
+    3. Replace the src URL above with your CDN URL
+
+  Option B — Same origin:
+    Serve demo-widget.js from your web server alongside your HTML.
+    <script src="/assets/demo-widget.js"></script>
+
+  The file is ~50KB gzipped (includes React 18 + the widget code).
+  It is safe to load asynchronously (does not block page render).
+
+  SECURITY NOTE:
+    The widget does not collect personal data.
+    All API calls go to your own API Gateway endpoint.
+    No third-party tracking or analytics are included.
+  ════════════════════════════════════════════════════════════════
+-->

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DemoChat Widget — Basic Test</title>
+  <style>
+    /* Deliberately minimal host-page styles to confirm the widget
+       doesn't inherit or leak any unintended CSS. */
+    * { box-sizing: border-box; }
+    body {
+      font-family: Georgia, serif;
+      background: #fafaf9;
+      color: #292524;
+      margin: 0;
+      padding: 40px 60px;
+      line-height: 1.7;
+    }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    p  { max-width: 620px; }
+    .badge {
+      display: inline-block;
+      background: #dcfce7;
+      color: #166534;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+    }
+    a { color: #2563eb; }
+  </style>
+</head>
+<body>
+  <span class="badge">TEST PAGE — default config</span>
+  <h1>Demosite</h1>
+  <p>
+    Welcome to Demosite! This page simulates a customer's website.
+    The chat bubble should appear in the <strong>bottom-right corner</strong>
+    using the default blue colour (<code>#2563eb</code>).
+  </p>
+  <p>
+    Click the bubble to open the chat window, then ask:
+  </p>
+  <ul>
+    <li>"What is your return policy?"</li>
+    <li>"How much is the Smart Watch Pro?"</li>
+    <li>"Tell me about the Pro Plan"</li>
+    <li>"Can I get a discount?" &nbsp;← should be politely declined</li>
+    <li>"What is the meaning of life?" &nbsp;← should trigger support redirect</li>
+  </ul>
+  <p>
+    Check the browser console for any errors.
+    Open DevTools → Network to verify the POST /chat request.
+  </p>
+
+  <!-- Step 1: Load the built widget bundle -->
+  <script src="dist/demo-widget"></script>
+
+  <!-- Step 2: Initialize with required config -->
+  <script>
+    DemoChat.init({
+      tenantId: 'demosite',
+      apiUrl:   'https://krli1mrzr9.execute-api.us-east-1.amazonaws.com'
+    });
+  </script>
+</body>
+</html>
