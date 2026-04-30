@@ -2,9 +2,12 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('production'),
+  },
   plugins: [react()],
-
   build: {
+    // ... rest stays the same
     // ── Library mode ─────────────────────────────────────────────
     // Vite bundles everything into a single file and wraps it in an
     // IIFE (Immediately-Invoked Function Expression). The bundle is
