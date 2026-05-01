@@ -856,6 +856,30 @@
     "aws:cdk:path": "ChatStack/ConversationHistory/Resource"
    }
   },
+  "TenantsA9C48FD3": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "tenant_id",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "tenant_id",
+      "KeyType": "HASH"
+     }
+    ],
+    "TableName": "Tenants"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/Tenants/Resource"
+   }
+  },
   "ChatFunctionServiceRole544D50A9": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -913,6 +937,25 @@
         "Fn::GetAtt": [
          "DemositeKnowledgeBaseMyCfnKnowledgeBase7EDF6842",
          "KnowledgeBaseArn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:Query",
+        "dynamodb:Scan"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "TenantsA9C48FD3",
+         "Arn"
         ]
        }
       },
@@ -981,15 +1024,12 @@
    "Properties": {
     "Code": {
      "S3Bucket": "cdk-hnb659fds-assets-078232195170-us-east-1",
-     "S3Key": "49deb960b64e90330fb0247dbd9ab25a38c7133170cf1f7fd138320b9e80dde4.zip"
+     "S3Key": "2d7e4f870b5ec7d810b7fcdb595570ecc112d2f206290521b4f194186fd2a8c0.zip"
     },
     "Environment": {
      "Variables": {
-      "KNOWLEDGE_BASE_ID": {
-       "Fn::GetAtt": [
-        "DemositeKnowledgeBaseMyCfnKnowledgeBase7EDF6842",
-        "KnowledgeBaseId"
-       ]
+      "TENANTS_TABLE": {
+       "Ref": "TenantsA9C48FD3"
       },
       "UNKNOWN_QUESTIONS_TABLE": {
        "Ref": "UnknownQuestionsTableC759410D"
@@ -1016,7 +1056,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "ChatStack/ChatFunction/Resource",
-    "aws:asset:path": "asset.49deb960b64e90330fb0247dbd9ab25a38c7133170cf1f7fd138320b9e80dde4",
+    "aws:asset:path": "asset.2d7e4f870b5ec7d810b7fcdb595570ecc112d2f206290521b4f194186fd2a8c0",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
@@ -1163,6 +1203,12 @@
    "Description": "DynamoDB table storing conversation history per session",
    "Value": {
     "Ref": "ConversationHistoryD9612A4F"
+   }
+  },
+  "TenantsTableName": {
+   "Description": "DynamoDB Tenants table — seed a row here for each customer",
+   "Value": {
+    "Ref": "TenantsA9C48FD3"
    }
   }
  },

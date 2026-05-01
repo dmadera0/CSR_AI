@@ -9,6 +9,13 @@
  * CloudFormation template — a JSON document that describes
  * every AWS resource and how they connect.
  *
+ * PHASE 5 ADDITIONS (multi-tenant backend):
+ *  11. Tenants               — DynamoDB table storing one row per customer,
+ *                              mapping tenant_id → Bedrock Knowledge Base ID.
+ *                              The Lambda reads this on every request to know
+ *                              which KB to search and which session partition
+ *                              to read/write for conversation history.
+ *
  * PHASE 3 ADDITIONS (on top of Phase 2):
  *  10. ConversationHistory   — DynamoDB table storing the last N messages
  *                              per chat session so Claude can remember
@@ -342,8 +349,33 @@ export class ChatStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    // ── 9. DynamoDB Table: Tenants ────────────────────────────────
+    //
+    // One row per customer. The Lambda reads this table on every chat
+    // request to find which Bedrock Knowledge Base belongs to the
+    // tenant sending the request.
+    //
+    // partitionKey: tenant_id (String)
+    //   A short, memorable ID chosen at account creation time
+    //   (e.g. "demosite", "acme-corp"). Callers include this in
+    //   every chat request so the Lambda knows whose KB to use.
+    //   Stored in snake_case to match the REST API field naming.
+    //
+    // No sort key — tenant_id is globally unique so a single-key
+    // table is sufficient. Lookups are GetItem (O(1)), not Query.
+    //
+    // removalPolicy: DESTROY
+    //   Safe for development. Change to RETAIN before going live
+    //   so tenant records survive a `cdk destroy`.
+    const tenantsTable = new dynamodb.Table(this, 'Tenants', {
+      tableName:    'Tenants',
+      partitionKey: { name: 'tenant_id', type: dynamodb.AttributeType.STRING },
+      billingMode:  dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
     // ==============================================================
-    // PHASE 1 — LAMBDA FUNCTION (updated with Phase 3 additions)
+    // PHASE 1 — LAMBDA FUNCTION (updated through Phase 5)
     // ==============================================================
     //
     // The Lambda function is defined AFTER ALL DynamoDB tables so
@@ -366,16 +398,20 @@ export class ChatStack extends cdk.Stack {
       // from CDK token references (e.g. knowledgeBase.knowledgeBaseId),
       // not hard-coded strings — so they stay correct across deployments.
       environment: {
-        // The KB ID that the Lambda passes to BedrockAgentRuntimeClient
-        // when calling the Retrieve API.
-        KNOWLEDGE_BASE_ID: knowledgeBase.knowledgeBaseId,
+        // Phase 5: KNOWLEDGE_BASE_ID is gone. The Lambda now looks up the
+        // correct KB ID dynamically from the Tenants table on each request,
+        // using the tenant_id the caller sends in the request body.
+        // This is what makes the handler multi-tenant.
+
+        // The DynamoDB table name for tenant → KB ID lookups.
+        TENANTS_TABLE: tenantsTable.tableName,
 
         // The DynamoDB table name for writing unknown question records.
         UNKNOWN_QUESTIONS_TABLE: unknownQuestionsTable.tableName,
 
         // The DynamoDB table name for reading/writing conversation history.
-        // Phase 3 uses this to load prior messages before calling Claude
-        // and to save the new exchange after each response.
+        // Session keys are now prefixed with tenant_id to prevent any
+        // cross-tenant data leakage: "{tenant_id}#{session_id}"
         CONVERSATION_TABLE_NAME: conversationTable.tableName,
       },
     });
@@ -414,6 +450,16 @@ export class ChatStack extends cdk.Stack {
     // Without this, the Lambda gets AccessDeniedException when it
     // calls the BedrockAgentRuntime Retrieve API.
     knowledgeBase.grantRetrieve(chatFn);
+
+    // ── DynamoDB: Tenants (read-only) ─────────────────────────────
+    //
+    // grantReadData() grants GetItem, BatchGetItem, Query, and Scan.
+    // The Lambda only calls GetItem (one lookup per request), but
+    // CDK's standard read grant keeps the code idiomatic.
+    // Write access is intentionally NOT granted — tenant rows are
+    // seeded manually or by a future admin API, never by the chat
+    // handler itself.
+    tenantsTable.grantReadData(chatFn);
 
     // ── DynamoDB: UnknownQuestions (write-only) ───────────────────
     //
@@ -498,6 +544,13 @@ export class ChatStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'ConversationTableName', {
       value: conversationTable.tableName,
       description: 'DynamoDB table storing conversation history per session',
+    });
+
+    // The Tenants table name — seed one row per customer after deploying.
+    // See README for the aws dynamodb put-item command to add a tenant.
+    new cdk.CfnOutput(this, 'TenantsTableName', {
+      value: tenantsTable.tableName,
+      description: 'DynamoDB Tenants table — seed a row here for each customer',
     });
   }
 }
