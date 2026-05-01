@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DemoChat — Create your account</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f1f5f9; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .card {
+      background: #fff; border-radius: 16px; padding: 40px;
+      width: 100%; max-width: 440px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 28px; }
+    .brand-icon {
+      width: 40px; height: 40px; background: #2563eb; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 20px;
+    }
+    .brand-name { font-size: 20px; font-weight: 700; color: #0f172a; }
+    h1 { font-size: 26px; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+    .subtitle { color: #64748b; font-size: 15px; margin-bottom: 28px; }
+    .field { margin-bottom: 18px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%; padding: 11px 14px; border: 1.5px solid #e2e8f0;
+      border-radius: 10px; font-size: 15px; color: #0f172a;
+      background: #f8fafc; transition: border-color .15s, background .15s; outline: none;
+    }
+    input:focus { border-color: #2563eb; background: #fff; }
+    #submit-btn {
+      width: 100%; padding: 13px; background: #2563eb; color: #fff;
+      border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: background .15s, transform .1s; margin-top: 4px;
+    }
+    #submit-btn:hover:not(:disabled) { background: #1d4ed8; }
+    #submit-btn:active:not(:disabled) { transform: scale(.98); }
+    #submit-btn:disabled { background: #93c5fd; cursor: not-allowed; }
+    .error-msg {
+      margin-top: 14px; padding: 11px 14px; background: #fef2f2;
+      border: 1px solid #fecaca; border-radius: 8px;
+      color: #b91c1c; font-size: 14px; display: none;
+    }
+    /* ── Overlay + Modal ── */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      display: none; align-items: center; justify-content: center;
+      padding: 24px; z-index: 100;
+    }
+    .modal {
+      background: #fff; border-radius: 16px; padding: 36px;
+      width: 100%; max-width: 520px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .check {
+      width: 56px; height: 56px; background: #dcfce7; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; margin: 0 auto 16px;
+    }
+    .modal h2 { text-align: center; font-size: 22px; color: #0f172a; margin-bottom: 4px; }
+    .modal-sub { text-align: center; color: #64748b; font-size: 14px; margin-bottom: 24px; }
+    .cred-label {
+      font-size: 11px; font-weight: 700; color: #374151;
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px;
+    }
+    .copy-row { display: flex; gap: 8px; margin-bottom: 18px; }
+    .copy-row input[type="text"] {
+      flex: 1; font-family: 'Courier New', monospace; font-size: 13px;
+      background: #f8fafc; border: 1.5px solid #e2e8f0;
+      border-radius: 8px; padding: 9px 12px;
+    }
+    .copy-btn {
+      padding: 9px 16px; background: #f1f5f9; border: 1.5px solid #e2e8f0;
+      border-radius: 8px; font-size: 13px; font-weight: 600; color: #374151;
+      cursor: pointer; white-space: nowrap; transition: background .15s;
+    }
+    .copy-btn:hover { background: #e2e8f0; }
+    .copy-btn.copied { background: #dcfce7; border-color: #86efac; color: #166534; }
+    .code-block {
+      background: #1e293b; color: #e2e8f0; border-radius: 10px;
+      padding: 16px; font-family: 'Courier New', monospace; font-size: 12px;
+      line-height: 1.65; white-space: pre; overflow-x: auto; margin-bottom: 18px;
+    }
+    .warning {
+      background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+      padding: 12px 14px; font-size: 13px; color: #92400e; margin-bottom: 20px;
+    }
+    .warning strong { display: block; margin-bottom: 3px; }
+    .done-btn {
+      display: block; width: 100%; padding: 13px; background: #2563eb; color: #fff;
+      border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: background .15s;
+    }
+    .done-btn:hover { background: #1d4ed8; }
+  </style>
+</head>
+<body>
+
+<!-- ── Sign-up card ─────────────────────────────────────────────── -->
+<div class="card">
+  <div class="brand">
+    <div class="brand-icon">💬</div>
+    <span class="brand-name">DemoChat</span>
+  </div>
+  <h1>Get started free</h1>
+  <p class="subtitle">Add an AI chat agent to your website in 5 minutes.</p>
+
+  <form id="signup-form" novalidate>
+    <div class="field">
+      <label for="company_name">Company Name</label>
+      <input id="company_name" type="text" placeholder="Acme Coffee" required autocomplete="organization" />
+    </div>
+    <div class="field">
+      <label for="email">Work Email</label>
+      <input id="email" type="email" placeholder="you@company.com" required autocomplete="email" />
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="At least 8 characters" required autocomplete="new-password" />
+    </div>
+    <button type="submit" id="submit-btn">Create Free Account</button>
+    <div id="error-msg" class="error-msg"></div>
+  </form>
+</div>
+
+<!-- ── Success overlay ──────────────────────────────────────────── -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="check">✓</div>
+    <h2>Account Created!</h2>
+    <p class="modal-sub">Your AI chat agent is ready. Save your credentials below.</p>
+
+    <p class="cred-label">API Key</p>
+    <div class="copy-row">
+      <input id="out-api-key" type="text" readonly />
+      <button class="copy-btn" data-target="out-api-key">Copy</button>
+    </div>
+
+    <p class="cred-label">Tenant ID</p>
+    <div class="copy-row">
+      <input id="out-tenant-id" type="text" readonly />
+      <button class="copy-btn" data-target="out-tenant-id">Copy</button>
+    </div>
+
+    <p class="cred-label">Embed Code</p>
+    <div style="text-align:right; margin-bottom:6px;">
+      <button class="copy-btn" id="copy-embed-btn">Copy Code</button>
+    </div>
+    <div class="code-block" id="out-embed-display"></div>
+
+    <div class="warning">
+      <strong>⚠ Save your API key now.</strong>
+      It will not be shown again. Store it somewhere safe before closing this window.
+    </div>
+
+    <button class="done-btn" id="done-btn">Got it — close this window</button>
+  </div>
+</div>
+
+<script>
+  // ── Update this after running `cdk deploy` ───────────────────────
+  const API_URL = 'https://krli1mrzr9.execute-api.us-east-1.amazonaws.com';
+  const CDN_URL = 'https://cdn.yourplatform.com/demo-widget.js';
+
+  // ── Form submit ──────────────────────────────────────────────────
+  document.getElementById('signup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn    = document.getElementById('submit-btn');
+    const errBox = document.getElementById('error-msg');
+
+    const company_name = document.getElementById('company_name').value.trim();
+    const email        = document.getElementById('email').value.trim();
+    const password     = document.getElementById('password').value;
+
+    // Client-side validation (server also validates — this is UX only)
+    if (!company_name || !email || !password) {
+      return showError('All fields are required.');
+    }
+    if (password.length < 8) {
+      return showError('Password must be at least 8 characters.');
+    }
+
+    btn.disabled    = true;
+    btn.textContent = 'Creating account…';
+    errBox.style.display = 'none';
+
+    try {
+      const res  = await fetch(`${API_URL}/auth/signup`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ company_name, email, password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        return showError(data.error || `Error ${res.status} — please try again.`);
+      }
+
+      showSuccessModal(data);
+
+    } catch {
+      showError('Connection failed. Check your internet and try again.');
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Create Free Account';
+    }
+  });
+
+  // ── Success modal ────────────────────────────────────────────────
+  function showSuccessModal({ tenant_id, api_key }) {
+    const embedCode =
+      `<script src="${CDN_URL}"><\/script>\n` +
+      `<script>\n` +
+      `  DemoChat.init({\n` +
+      `    tenantId: '${tenant_id}',\n` +
+      `    apiUrl:   '${API_URL}'\n` +
+      `  });\n` +
+      `<\/script>`;
+
+    document.getElementById('out-api-key').value        = api_key;
+    document.getElementById('out-tenant-id').value      = tenant_id;
+    document.getElementById('out-embed-display').textContent = embedCode;
+
+    // Store embed code for the copy button
+    document.getElementById('copy-embed-btn').dataset.embed = embedCode;
+
+    document.getElementById('overlay').style.display = 'flex';
+  }
+
+  // ── Copy buttons ─────────────────────────────────────────────────
+  document.querySelectorAll('.copy-btn[data-target]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = document.getElementById(btn.dataset.target).value;
+      navigator.clipboard.writeText(val).then(() => flashCopied(btn));
+    });
+  });
+
+  document.getElementById('copy-embed-btn').addEventListener('click', function () {
+    navigator.clipboard.writeText(this.dataset.embed).then(() => flashCopied(this));
+  });
+
+  document.getElementById('done-btn').addEventListener('click', () => {
+    document.getElementById('overlay').style.display = 'none';
+  });
+
+  // ── Helpers ──────────────────────────────────────────────────────
+  function showError(msg) {
+    const box = document.getElementById('error-msg');
+    box.textContent   = msg;
+    box.style.display = 'block';
+  }
+
+  function flashCopied(btn) {
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+  }
+</script>
+</body>
+</html>
