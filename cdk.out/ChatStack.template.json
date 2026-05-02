@@ -863,9 +863,27 @@
      {
       "AttributeName": "tenant_id",
       "AttributeType": "S"
+     },
+     {
+      "AttributeName": "email",
+      "AttributeType": "S"
      }
     ],
     "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "email-index",
+      "KeySchema": [
+       {
+        "AttributeName": "email",
+        "KeyType": "HASH"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
     "KeySchema": [
      {
       "AttributeName": "tenant_id",
@@ -952,12 +970,28 @@
         "dynamodb:Scan"
        ],
        "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "TenantsA9C48FD3",
-         "Arn"
-        ]
-       }
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "TenantsA9C48FD3",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "TenantsA9C48FD3",
+             "Arn"
+            ]
+           },
+           "/index/*"
+          ]
+         ]
+        }
+       ]
       },
       {
        "Action": [
@@ -1024,7 +1058,7 @@
    "Properties": {
     "Code": {
      "S3Bucket": "cdk-hnb659fds-assets-078232195170-us-east-1",
-     "S3Key": "2d7e4f870b5ec7d810b7fcdb595570ecc112d2f206290521b4f194186fd2a8c0.zip"
+     "S3Key": "c3887c655941c33330df51c14a9332cdf9c5573cb728ff4178b0aa3ff43df368.zip"
     },
     "Environment": {
      "Variables": {
@@ -1056,7 +1090,393 @@
    ],
    "Metadata": {
     "aws:cdk:path": "ChatStack/ChatFunction/Resource",
-    "aws:asset:path": "asset.2d7e4f870b5ec7d810b7fcdb595570ecc112d2f206290521b4f194186fd2a8c0",
+    "aws:asset:path": "asset.c3887c655941c33330df51c14a9332cdf9c5573cb728ff4178b0aa3ff43df368",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "AuthDepsLayer306C39D8": {
+   "Type": "AWS::Lambda::LayerVersion",
+   "Properties": {
+    "CompatibleRuntimes": [
+     "nodejs20.x"
+    ],
+    "Content": {
+     "S3Bucket": "cdk-hnb659fds-assets-078232195170-us-east-1",
+     "S3Key": "147cf52e2f33a15692323a451051a8bbe8cb54d7f34993ec38706ae99787be7c.zip"
+    },
+    "Description": "bcryptjs + @aws-sdk/client-s3vectors for the signup handler",
+    "LayerName": "auth-deps"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/AuthDepsLayer/Resource",
+    "aws:asset:path": "asset.147cf52e2f33a15692323a451051a8bbe8cb54d7f34993ec38706ae99787be7c",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Content"
+   }
+  },
+  "AuthFunctionServiceRole87A7A68C": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/AuthFunction/ServiceRole/Resource"
+   }
+  },
+  "AuthFunctionServiceRoleDefaultPolicy4198AD5B": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "TenantsA9C48FD3",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "TenantsA9C48FD3",
+             "Arn"
+            ]
+           },
+           "/index/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "bedrock:CreateDataSource",
+        "bedrock:CreateKnowledgeBase",
+        "bedrock:TagResource"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": "iam:PassRole",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "DemositeKnowledgeBaseRoleBDE4D511",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": [
+        "s3vectors:CreateIndex",
+        "s3vectors:GetIndex",
+        "s3vectors:ListIndexes"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DemositeVectorBucket8372003D",
+          "VectorBucketArn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DemositeVectorBucket8372003D",
+             "VectorBucketArn"
+            ]
+           },
+           "/index/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "DemositeKnowledgeBucket61FEEE19",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "DemositeKnowledgeBucket61FEEE19",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "AuthFunctionServiceRoleDefaultPolicy4198AD5B",
+    "Roles": [
+     {
+      "Ref": "AuthFunctionServiceRole87A7A68C"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/AuthFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "AuthFunctionA1CD5E0F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-078232195170-us-east-1",
+     "S3Key": "c3887c655941c33330df51c14a9332cdf9c5573cb728ff4178b0aa3ff43df368.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "TENANTS_TABLE": {
+       "Ref": "TenantsA9C48FD3"
+      },
+      "KB_ROLE_ARN": {
+       "Fn::GetAtt": [
+        "DemositeKnowledgeBaseRoleBDE4D511",
+        "Arn"
+       ]
+      },
+      "VECTOR_BUCKET_NAME": {
+       "Fn::Select": [
+        1,
+        {
+         "Fn::Split": [
+          "/",
+          {
+           "Fn::GetAtt": [
+            "DemositeVectorBucket8372003D",
+            "VectorBucketArn"
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      "DOCS_BUCKET_NAME": {
+       "Ref": "DemositeKnowledgeBucket61FEEE19"
+      }
+     }
+    },
+    "Handler": "auth.handler",
+    "Layers": [
+     {
+      "Ref": "AuthDepsLayer306C39D8"
+     }
+    ],
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "AuthFunctionServiceRole87A7A68C",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 60
+   },
+   "DependsOn": [
+    "AuthFunctionServiceRoleDefaultPolicy4198AD5B",
+    "AuthFunctionServiceRole87A7A68C"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/AuthFunction/Resource",
+    "aws:asset:path": "asset.c3887c655941c33330df51c14a9332cdf9c5573cb728ff4178b0aa3ff43df368",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "LoginFunctionServiceRole74B42ABA": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/LoginFunction/ServiceRole/Resource"
+   }
+  },
+  "LoginFunctionServiceRoleDefaultPolicy2FE1C77C": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:Query",
+        "dynamodb:Scan"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "TenantsA9C48FD3",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "TenantsA9C48FD3",
+             "Arn"
+            ]
+           },
+           "/index/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LoginFunctionServiceRoleDefaultPolicy2FE1C77C",
+    "Roles": [
+     {
+      "Ref": "LoginFunctionServiceRole74B42ABA"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/LoginFunction/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "LoginFunction66F090C6": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-078232195170-us-east-1",
+     "S3Key": "c3887c655941c33330df51c14a9332cdf9c5573cb728ff4178b0aa3ff43df368.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "TENANTS_TABLE": {
+       "Ref": "TenantsA9C48FD3"
+      }
+     }
+    },
+    "Handler": "login.handler",
+    "Layers": [
+     {
+      "Ref": "AuthDepsLayer306C39D8"
+     }
+    ],
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "LoginFunctionServiceRole74B42ABA",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "LoginFunctionServiceRoleDefaultPolicy2FE1C77C",
+    "LoginFunctionServiceRole74B42ABA"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/LoginFunction/Resource",
+    "aws:asset:path": "asset.c3887c655941c33330df51c14a9332cdf9c5573cb728ff4178b0aa3ff43df368",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
@@ -1170,10 +1590,160 @@
     "aws:cdk:path": "ChatStack/ChatApi/POST--chat/Resource"
    }
   },
+  "ChatApiPOSTauthsignupAuthIntegrationF2C67E25": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "ChatApiD29796E1"
+    },
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::GetAtt": [
+      "AuthFunctionA1CD5E0F",
+      "Arn"
+     ]
+    },
+    "PayloadFormatVersion": "2.0"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatApi/POST--auth--signup/AuthIntegration/Resource"
+   }
+  },
+  "ChatApiPOSTauthsignupAuthIntegrationPermission003247A4": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "AuthFunctionA1CD5E0F",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:078232195170:",
+       {
+        "Ref": "ChatApiD29796E1"
+       },
+       "/*/*/auth/signup"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatApi/POST--auth--signup/AuthIntegration-Permission"
+   }
+  },
+  "ChatApiPOSTauthsignup9AA71C30": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "ChatApiD29796E1"
+    },
+    "AuthorizationType": "NONE",
+    "RouteKey": "POST /auth/signup",
+    "Target": {
+     "Fn::Join": [
+      "",
+      [
+       "integrations/",
+       {
+        "Ref": "ChatApiPOSTauthsignupAuthIntegrationF2C67E25"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatApi/POST--auth--signup/Resource"
+   }
+  },
+  "ChatApiPOSTauthloginLoginIntegrationA5767E54": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "ChatApiD29796E1"
+    },
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::GetAtt": [
+      "LoginFunction66F090C6",
+      "Arn"
+     ]
+    },
+    "PayloadFormatVersion": "2.0"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatApi/POST--auth--login/LoginIntegration/Resource"
+   }
+  },
+  "ChatApiPOSTauthloginLoginIntegrationPermissionD057931B": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "LoginFunction66F090C6",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:us-east-1:078232195170:",
+       {
+        "Ref": "ChatApiD29796E1"
+       },
+       "/*/*/auth/login"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatApi/POST--auth--login/LoginIntegration-Permission"
+   }
+  },
+  "ChatApiPOSTauthlogin4D82D440": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "ChatApiD29796E1"
+    },
+    "AuthorizationType": "NONE",
+    "RouteKey": "POST /auth/login",
+    "Target": {
+     "Fn::Join": [
+      "",
+      [
+       "integrations/",
+       {
+        "Ref": "ChatApiPOSTauthloginLoginIntegrationA5767E54"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ChatStack/ChatApi/POST--auth--login/Resource"
+   }
+  },
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/5VTS28aMRD+LeFsnABtpfZUAooatVIQVLlEFfLak5XBa6889pLVyv+9fqSw5NbTfPOe+cae0/nnGb27YSeccnGcKlnRYecYP5Jo2g+4oMO950dwZPWqC3oZJo18k3rybTJOS/ExPLuQltCld2YNChw8VQfgDifhDymujVGS95eqRf+P2iUhzuqgAT0ufc8QAsHFfhDQKtMn93vS+mwgDBEc0mUSgSjWVILRIc7zi/Vgn8GiNJrspK7j/EY/eM1dspxBDB3jDdhGYkoKRLKGDlujIDmyvKxbUJqvi4wYi7npc8YXqh+1gLdAKhDW8GMO+anNSYGoIe2XYtbMsZ3xlsdtRa9ZY0S83m9Wlb4ZBMJaWUeOTqzv5nT44Vy7bGXyJ5HUSGGdEwpIpq3xrqBH7aC27N+SH9QcFwJZeXSm2QLmabLnjK9cG2s6KcDmFTL1qWnk+P0Ae5XI38d7cyXp8oQrJfM9yLj4k3etj0e7ozO6mH25+R7fiWIV3tagIU3XwZTJ/Hq40eisj0+PDiPGr+guykfGi/Wa9N1ixHkg2gigB7zt5p/o1/iLDijl1HrtZAN0W+RfrTiD22IDAAA="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/5VTTW/bMAz9Lc1ZUZtkG7CdliYoVmxAg2TopRgCWWINJbJkiJJTw9B/nz66xOltJz7ykTT5KM/p/POM3t2wE065OE6VrOiwc4wfSQztB1zQ4d7zIziyetUFvQyTRr5JPfk2GZel/JieKaQldemdWYMCB0/VAbjDSfhDCrUxSvL+0rX4/9G7FMRZHTSgx63vGUIguNgPAlpl+kS/F63PAcIQwSFdJhOIYk0lGB3iPL9YD/YZLEqjyU7qOs5v9IPX3KXIGcTUM76qicQGbCMxeYFI1tBhaxQkItvL7gWlYbsoj7GYJ3jO+KL7oxbwFkgFwhp+zCk/tTkpEDWkZVPOmjm2M97yuLroNWuMiKf8zary3QwCYa2so2An1ndzOvxwrl22MvHJJDfqWeeCAlJoa7wr6FE7qC37t/0HN+eFQFYenWm2gHmazJzxFbWxppMCbF4h3yF9NAr+fo29Sqru4/G5knR5wpWSWWgybv7kXevjBe/ojC5mX26+x0ejWIW3NWhI03UwZTI/JW40OuvjO6TDSPEruYvzUfESvRZ9txhpHog2AugBb7v5J/o1/lIHlHJqvXayAbot9i8gFJ0SbwMAAA=="
    },
    "Metadata": {
     "aws:cdk:path": "ChatStack/CDKMetadata/Default"
@@ -1209,6 +1779,23 @@
    "Description": "DynamoDB Tenants table — seed a row here for each customer",
    "Value": {
     "Ref": "TenantsA9C48FD3"
+   }
+  },
+  "SignupEndpoint": {
+   "Description": "POST /auth/signup — public signup endpoint",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      {
+       "Fn::GetAtt": [
+        "ChatApiD29796E1",
+        "ApiEndpoint"
+       ]
+      },
+      "/auth/signup"
+     ]
+    ]
    }
   }
  },

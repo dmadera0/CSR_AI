@@ -1,0 +1,9 @@
+{
+  "name": "auth-deps-layer",
+  "version": "1.0.0",
+  "description": "Lambda Layer for auth handler: bcryptjs + S3 Vectors SDK",
+  "dependencies": {
+    "@aws-sdk/client-s3vectors": "^3.1041.0",
+    "bcryptjs": "^2.4.3"
+  }
+}

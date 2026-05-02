@@ -374,6 +374,15 @@ export class ChatStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    // GSI: look up a tenant by email for the duplicate-email check at signup.
+    // A Scan would be O(n) and slow as tenant count grows; the GSI keeps
+    // it a constant-time GetItem equivalent regardless of table size.
+    tenantsTable.addGlobalSecondaryIndex({
+      indexName:      'email-index',
+      partitionKey:   { name: 'email', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     // ==============================================================
     // PHASE 1 — LAMBDA FUNCTION (updated through Phase 5)
     // ==============================================================
@@ -500,6 +509,141 @@ export class ChatStack extends cdk.Stack {
     );
 
     // ==============================================================
+    // AUTH LAMBDA + LAYER
+    // ==============================================================
+
+    // ── Lambda Layer: auth dependencies ───────────────────────────
+    //
+    // A Lambda Layer is a zip of extra files unpacked into /opt/ in the
+    // execution environment. Node.js resolves require() against
+    // /opt/nodejs/node_modules/ automatically, so auth.js can call
+    // `require('bcryptjs')` without bundling it in the main package.
+    //
+    // Layer contents: bcryptjs + @aws-sdk/client-s3vectors
+    //
+    // PRE-DEPLOY: run the following once before `cdk deploy`:
+    //   cd layers/auth-deps/nodejs && npm install && cd ../../..
+    const authDepsLayer = new lambda.LayerVersion(this, 'AuthDepsLayer', {
+      layerVersionName: 'auth-deps',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../layers/auth-deps')),
+      compatibleRuntimes: [lambda.Runtime.NODEJS_20_X],
+      description: 'bcryptjs + @aws-sdk/client-s3vectors for the signup handler',
+    });
+
+    // ── Auth Lambda ────────────────────────────────────────────────
+    //
+    // Kept separate from chatFn so it can carry wider IAM permissions
+    // (Bedrock create*, S3 Vectors create*, iam:PassRole) without
+    // granting those sensitive rights to the chat handler.
+    // Principle of least privilege: each function has only what it needs.
+    const authFn = new lambda.Function(this, 'AuthFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+
+      // 'auth.handler' → Lambda looks for auth.js in the deployment
+      // package and calls exports.handler. Both index.js and auth.js
+      // live in the same lambda/ folder, so one Code.fromAsset bundles both.
+      handler: 'auth.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')),
+
+      // Generous timeout: CreateKnowledgeBase + CreateDataSource together
+      // can take up to ~20 s on Bedrock's first call.
+      timeout: cdk.Duration.seconds(60),
+      memorySize: 256,
+      layers: [authDepsLayer],
+
+      environment: {
+        // DynamoDB table for reading (email check) and writing (new tenant).
+        TENANTS_TABLE: tenantsTable.tableName,
+
+        // IAM execution role that Bedrock assumes when managing the KB.
+        // New tenant KBs reuse the role CDK created for the Demosite KB —
+        // all KBs need the same permissions (embed model + S3 + S3 Vectors).
+        KB_ROLE_ARN: knowledgeBase.role.roleArn,
+
+        // Shared S3 Vectors bucket: each tenant gets their own index inside.
+        VECTOR_BUCKET_NAME: vectorBucket.vectorBucketName,
+
+        // Docs bucket: tenant uploads land under tenant-docs/{tenantId}/.
+        DOCS_BUCKET_NAME: knowledgeBucket.bucketName,
+      },
+    });
+
+    // ── IAM: Tenants table (read + write) ─────────────────────────
+    // Read  — QueryCommand on email-index GSI (duplicate email check)
+    // Write — PutItemCommand to insert the new tenant row
+    tenantsTable.grantReadWriteData(authFn);
+
+    // ── IAM: Bedrock create permissions ───────────────────────────
+    // CreateKnowledgeBase and CreateDataSource cannot be scoped to a
+    // specific resource ARN — AWS requires '*' for all create actions.
+    authFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: [
+          'bedrock:CreateKnowledgeBase',
+          'bedrock:CreateDataSource',
+          'bedrock:TagResource',
+        ],
+        resources: ['*'],
+      })
+    );
+
+    // ── IAM: PassRole ──────────────────────────────────────────────
+    // When authFn calls CreateKnowledgeBase it passes KB_ROLE_ARN so
+    // Bedrock can assume that role. Lambda must have iam:PassRole on
+    // that specific ARN or AWS rejects the call with AccessDenied.
+    authFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions:   ['iam:PassRole'],
+        resources: [knowledgeBase.role.roleArn],
+      })
+    );
+
+    // ── IAM: S3 Vectors (create + inspect per-tenant index) ───────
+    // CreateIndex — provisioned once per signup
+    // GetIndex, ListIndexes — confirm the index exists before KB creation
+    authFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: [
+          's3vectors:CreateIndex',
+          's3vectors:GetIndex',
+          's3vectors:ListIndexes',
+        ],
+        resources: [
+          vectorBucket.vectorBucketArn,
+          `${vectorBucket.vectorBucketArn}/index/*`,
+        ],
+      })
+    );
+
+    // ── IAM: S3 docs bucket (read-only for auth handler) ──────────
+    // authFn doesn't upload files itself, but the Bedrock data source
+    // it creates needs to list the tenant prefix during first sync.
+    knowledgeBucket.grantRead(authFn);
+
+    // ── Login Lambda (POST /auth/login) ────────────────────────────
+    // Authenticates tenants by email + password, returns tenant_id + KB ID.
+    // Kept separate from authFn so it carries only the minimal permissions
+    // it needs (read-only on Tenants) rather than inheriting authFn's
+    // broad Bedrock/S3 Vectors create permissions.
+    const loginFn = new lambda.Function(this, 'LoginFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'login.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 256,
+      layers: [authDepsLayer],
+      environment: {
+        TENANTS_TABLE: tenantsTable.tableName,
+      },
+    });
+
+    // ── IAM: Tenants table (read-only) ─────────────────────────────
+    // loginFn only reads — it queries email-index to find the tenant,
+    // then reads the password_hash to verify credentials.
+    // Write access is intentionally omitted (login never mutates data).
+    tenantsTable.grantReadData(loginFn);
+
+    // ==============================================================
     // PHASE 1 — HTTP API GATEWAY (unchanged)
     // ==============================================================
 
@@ -517,6 +661,25 @@ export class ChatStack extends cdk.Stack {
       path: '/chat',
       methods: [apigwv2.HttpMethod.POST],
       integration: new integrations.HttpLambdaIntegration('ChatIntegration', chatFn),
+    });
+
+    // POST /auth/signup — public, no API key required.
+    // The global corsPreflight config on this HttpApi automatically applies
+    // to all routes, so no extra CORS setup is needed here.
+    api.addRoutes({
+      path: '/auth/signup',
+      methods: [apigwv2.HttpMethod.POST],
+      integration: new integrations.HttpLambdaIntegration('AuthIntegration', authFn),
+    });
+
+    // POST /auth/login — public, returns tenant_id + knowledge_base_id.
+    // NOTE: the original snippet used REST API syntax (apigateway.LambdaIntegration
+    // + api.root.addMethod). This API Gateway is HTTP API v2 (apigwv2.HttpApi),
+    // so the correct integration is HttpLambdaIntegration + api.addRoutes().
+    api.addRoutes({
+      path: '/auth/login',
+      methods: [apigwv2.HttpMethod.POST],
+      integration: new integrations.HttpLambdaIntegration('LoginIntegration', loginFn),
     });
 
     // ==============================================================
@@ -551,6 +714,14 @@ export class ChatStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'TenantsTableName', {
       value: tenantsTable.tableName,
       description: 'DynamoDB Tenants table — seed a row here for each customer',
+    });
+
+    // Full URL for the signup endpoint — open public/signup.html and
+    // set API_URL to the ApiUrl output value; this endpoint is derived
+    // from the same API Gateway so both values share the same base URL.
+    new cdk.CfnOutput(this, 'SignupEndpoint', {
+      value: `${api.apiEndpoint}/auth/signup`,
+      description: 'POST /auth/signup — public signup endpoint',
     });
   }
 }

@@ -48,7 +48,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:527:5)",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:690:5)",
         "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
@@ -62,7 +62,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:537:5)",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:700:5)",
         "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
@@ -76,7 +76,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:544:5)",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:707:5)",
         "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
@@ -90,7 +90,21 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:551:5)",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:714:5)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/SignupEndpoint": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SignupEndpoint"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:722:5)",
         "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
@@ -287,7 +301,52 @@
       "type": "aws:cdk:creationStack",
       "data": [
         "...new Function2 in aws-cdk-lib...",
-        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:386:20)",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:395:20)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/AuthDepsLayer/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuthDepsLayer306C39D8"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new LayerVersion2 in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:526:27)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/AuthFunction/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuthFunctionA1CD5E0F"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:539:20)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/LoginFunction/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LoginFunction66F090C6"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:628:21)",
         "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
@@ -302,7 +361,7 @@
       "type": "aws:cdk:creationStack",
       "data": [
         "...new HttpApi2 in aws-cdk-lib...",
-        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:508:17)",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:652:17)",
         "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
@@ -456,7 +515,37 @@
       "type": "aws:cdk:creationStack",
       "data": [
         "...new Function2 in aws-cdk-lib...",
-        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:386:20)",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:395:20)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/AuthFunction/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuthFunctionServiceRole87A7A68C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:539:20)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/LoginFunction/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LoginFunctionServiceRole74B42ABA"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...new Function2 in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:628:21)",
         "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
@@ -471,7 +560,7 @@
       "type": "aws:cdk:creationStack",
       "data": [
         "...new HttpApi2 in aws-cdk-lib...",
-        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:508:17)",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:652:17)",
         "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
@@ -488,7 +577,7 @@
         ".../Users/d.madera/Desktop/Programs/CSR_AI/node_modules/aws-cdk-lib/aws-apigatewayv2/lib/http/api.js:1:96 in aws-cdk-lib...",
         "Array.map (:)",
         "...WrappedClass.<anonymous> in aws-cdk-lib...",
-        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:516:9)",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:660:9)",
         "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
@@ -505,7 +594,75 @@
         ".../Users/d.madera/Desktop/Programs/CSR_AI/node_modules/aws-cdk-lib/aws-apigatewayv2/lib/http/api.js:1:96 in aws-cdk-lib...",
         "Array.map (:)",
         "...WrappedClass.<anonymous> in aws-cdk-lib...",
-        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:516:9)",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:660:9)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ChatApi/POST--auth--signup/AuthIntegration-Permission": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatApiPOSTauthsignupAuthIntegrationPermission003247A4"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../Users/d.madera/Desktop/Programs/CSR_AI/node_modules/aws-cdk-lib/aws-apigatewayv2/lib/http/api.js:1:96 in aws-cdk-lib...",
+        "Array.map (:)",
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:669:9)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ChatApi/POST--auth--signup/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatApiPOSTauthsignup9AA71C30"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../Users/d.madera/Desktop/Programs/CSR_AI/node_modules/aws-cdk-lib/aws-apigatewayv2/lib/http/api.js:1:96 in aws-cdk-lib...",
+        "Array.map (:)",
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:669:9)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ChatApi/POST--auth--login/LoginIntegration-Permission": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatApiPOSTauthloginLoginIntegrationPermissionD057931B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../Users/d.madera/Desktop/Programs/CSR_AI/node_modules/aws-cdk-lib/aws-apigatewayv2/lib/http/api.js:1:96 in aws-cdk-lib...",
+        "Array.map (:)",
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:679:9)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ChatApi/POST--auth--login/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatApiPOSTauthlogin4D82D440"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../Users/d.madera/Desktop/Programs/CSR_AI/node_modules/aws-cdk-lib/aws-apigatewayv2/lib/http/api.js:1:96 in aws-cdk-lib...",
+        "Array.map (:)",
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:679:9)",
         "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
@@ -552,7 +709,37 @@
       "type": "aws:cdk:creationStack",
       "data": [
         "...WrappedClass.addToRolePolicy in aws-cdk-lib...",
-        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:434:12)",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:443:12)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/AuthFunction/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AuthFunctionServiceRoleDefaultPolicy4198AD5B"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.grantReadWriteData in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:574:18)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/LoginFunction/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LoginFunctionServiceRoleDefaultPolicy2FE1C77C"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...WrappedClass.grantReadData in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:644:18)",
         "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
@@ -569,7 +756,41 @@
         ".../Users/d.madera/Desktop/Programs/CSR_AI/node_modules/aws-cdk-lib/aws-apigatewayv2/lib/http/api.js:1:96 in aws-cdk-lib...",
         "Array.map (:)",
         "...WrappedClass.<anonymous> in aws-cdk-lib...",
-        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:516:9)",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:660:9)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ChatApi/POST--auth--signup/AuthIntegration/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatApiPOSTauthsignupAuthIntegrationF2C67E25"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../Users/d.madera/Desktop/Programs/CSR_AI/node_modules/aws-cdk-lib/aws-apigatewayv2/lib/http/api.js:1:96 in aws-cdk-lib...",
+        "Array.map (:)",
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:669:9)",
+        "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
+        "...node internals, ts-node, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/ChatStack/ChatApi/POST--auth--login/LoginIntegration/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ChatApiPOSTauthloginLoginIntegrationA5767E54"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        ".../Users/d.madera/Desktop/Programs/CSR_AI/node_modules/aws-cdk-lib/aws-apigatewayv2/lib/http/api.js:1:96 in aws-cdk-lib...",
+        "Array.map (:)",
+        "...WrappedClass.<anonymous> in aws-cdk-lib...",
+        "new ChatStack (/Users/d.madera/Desktop/Programs/CSR_AI/lib/chat-stack.ts:679:9)",
         "<anonymous> (/Users/d.madera/Desktop/Programs/CSR_AI/bin/app.ts:68:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
