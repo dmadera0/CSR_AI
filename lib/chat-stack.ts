@@ -229,7 +229,9 @@ export class ChatStack extends cdk.Stack {
     //   reasonable overlap and chunk sizes automatically.
     //   Smaller chunks = more precise retrieval but more API calls.
     //   Larger chunks = more context per result but lower precision.
-    knowledgeBase.addS3DataSource({
+    // Capture the return value so uploadFn can pass its dataSourceId
+    // to Bedrock's StartIngestionJob API after a file is uploaded.
+    const dataSource = knowledgeBase.addS3DataSource({
       bucket: knowledgeBucket,
       dataSourceName: 'demosite-documents',
       chunkingStrategy: bedrock.ChunkingStrategy.DEFAULT,
@@ -643,6 +645,66 @@ export class ChatStack extends cdk.Stack {
     // Write access is intentionally omitted (login never mutates data).
     tenantsTable.grantReadData(loginFn);
 
+    // ── Upload Lambda (POST /upload) ───────────────────────────────
+    // Handles multipart file uploads, stores in S3 under tenant-docs/{tenantId}/,
+    // triggers KB ingestion job automatically.
+    //
+    // memorySize: 512 — larger than the chat Lambda because this handler
+    // parses a multipart body and buffers file bytes in memory before
+    // writing to S3. 256 MB is enough for text files but PDF/DOCX files
+    // can be several MB; 512 MB keeps us well inside Lambda's limits.
+    const uploadFn = new lambda.Function(this, 'UploadFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'upload.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')),
+      timeout: cdk.Duration.seconds(60),
+      memorySize: 512,
+      layers: [authDepsLayer],
+      environment: {
+        DOCS_BUCKET_NAME:  knowledgeBucket.bucketName,
+        TENANTS_TABLE:     tenantsTable.tableName,
+        // knowledgeBaseId + dataSourceId are both required by
+        // Bedrock's StartIngestionJob API — one identifies the KB,
+        // the other identifies which data source to re-index.
+        KNOWLEDGE_BASE_ID: knowledgeBase.knowledgeBaseId,
+        DATA_SOURCE_ID:    dataSource.dataSourceId,   // fixed: .dataSourceId not .id
+      },
+    });
+
+    // ── IAM: S3 write (upload documents) ───────────────────────────
+    knowledgeBucket.grantPut(uploadFn);
+
+    // ── IAM: DynamoDB read (tenant lookup) ─────────────────────────
+    tenantsTable.grantReadData(uploadFn);
+
+    // ── IAM: Bedrock (start ingestion) ─────────────────────────────
+    // StartIngestionJob cannot be restricted to a specific resource ARN
+    // at the action level — AWS requires '*' for this operation.
+    uploadFn.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions:   ['bedrock:StartIngestionJob'],
+        resources: ['*'],
+      })
+    );
+
+    // ==============================================================
+    // ADMIN LAMBDA — Owner dashboard (GET /admin/tenants, PUT /admin/tenants/{tenantId})
+    // ==============================================================
+
+    const adminFn = new lambda.Function(this, 'AdminFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'admin.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')),
+      timeout: cdk.Duration.seconds(30),
+      memorySize: 256,
+      environment: {
+        TENANTS_TABLE: tenantsTable.tableName,
+      },
+    });
+
+    // Scan (list all) + UpdateItem (edit tenant fields)
+    tenantsTable.grantReadWriteData(adminFn);
+
     // ==============================================================
     // PHASE 1 — HTTP API GATEWAY (unchanged)
     // ==============================================================
@@ -652,7 +714,12 @@ export class ChatStack extends cdk.Stack {
     const api = new apigwv2.HttpApi(this, 'ChatApi', {
       corsPreflight: {
         allowHeaders: ['Content-Type'],
-        allowMethods: [apigwv2.CorsHttpMethod.POST],
+        allowMethods: [
+          apigwv2.CorsHttpMethod.POST,
+          apigwv2.CorsHttpMethod.GET,
+          apigwv2.CorsHttpMethod.PUT,
+          apigwv2.CorsHttpMethod.OPTIONS,
+        ],
         allowOrigins: ['*'],
       },
     });
@@ -680,6 +747,37 @@ export class ChatStack extends cdk.Stack {
       path: '/auth/login',
       methods: [apigwv2.HttpMethod.POST],
       integration: new integrations.HttpLambdaIntegration('LoginIntegration', loginFn),
+    });
+
+    // POST /upload — accepts multipart file uploads, stores in S3, triggers
+    // Bedrock ingestion. VERSION_2_0 payload format is required so API Gateway
+    // passes the raw base64-encoded body (instead of a parsed event) which the
+    // Lambda can decode and stream directly to S3.
+    // NOTE: the original snippet used apigwv2.HttpLambdaIntegration — that class
+    // lives in the `integrations` import namespace, not `apigwv2`.
+    api.addRoutes({
+      path: '/upload',
+      methods: [apigwv2.HttpMethod.POST],
+      integration: new integrations.HttpLambdaIntegration('UploadIntegration', uploadFn, {
+        payloadFormatVersion: apigwv2.PayloadFormatVersion.VERSION_2_0,
+      }),
+    });
+
+    // GET  /admin/tenants            — list all tenants
+    // PUT  /admin/tenants/{tenantId} — update a tenant record
+    // VERSION_2_0 so routeKey and pathParameters are available in the event.
+    const adminIntegration = new integrations.HttpLambdaIntegration('AdminIntegration', adminFn, {
+      payloadFormatVersion: apigwv2.PayloadFormatVersion.VERSION_2_0,
+    });
+    api.addRoutes({
+      path: '/admin/tenants',
+      methods: [apigwv2.HttpMethod.GET],
+      integration: adminIntegration,
+    });
+    api.addRoutes({
+      path: '/admin/tenants/{tenantId}',
+      methods: [apigwv2.HttpMethod.PUT],
+      integration: adminIntegration,
     });
 
     // ==============================================================
