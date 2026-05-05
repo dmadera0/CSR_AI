@@ -140,14 +140,20 @@ exports.handler = async (event) => {
   let message, tenantId, sessionId, prefixedSessionId;
   try {
     const body = JSON.parse(event.body || '{}');
+    console.log('REQUEST BODY:', JSON.stringify(body));
+    
     message  = body.message;
-    tenantId = body.tenant_id;
+    tenantId = body.tenantId || body.tenant_id;
     const rawSessionId = body.session_id || generateUUID();
 
+    console.log('PARSED:', { message: !!message, tenantId, sessionId: !!rawSessionId });
+
     if (!message || typeof message !== 'string') {
+      console.log('ERROR: message is required');
       return respond(400, { error: 'message is required.' });
     }
     if (!tenantId || typeof tenantId !== 'string') {
+      console.log('ERROR: tenant_id is required');
       return respond(400, { error: 'tenant_id is required.' });
     }
 
@@ -202,6 +208,12 @@ exports.handler = async (event) => {
   let sourcesUsed = 0;
 
   try {
+    console.log('RETRIEVE DEBUG:', {
+      tenantId: tenantId,
+      knowledgeBaseId: tenant.knowledgeBaseId,
+      message: message
+    });
+
     const retrieveCommand = new RetrieveCommand({
       knowledgeBaseId: tenant.knowledgeBaseId,  // per-tenant KB ID
       retrievalQuery: { text: message },
@@ -217,6 +229,12 @@ exports.handler = async (event) => {
       .filter(t => t && t.trim().length > 0);
 
     sourcesUsed = retrievedChunks.length;
+
+    console.log('RETRIEVE RESPONSE:', {
+      retrievalResultsCount: retrieveResponse.retrievalResults?.length || 0,
+      retrievedChunks: retrievedChunks.length,
+      chunks: retrievedChunks
+    });
 
   } catch (retrieveErr) {
     // KB retrieve failed (not synced, wrong region, transient error).
